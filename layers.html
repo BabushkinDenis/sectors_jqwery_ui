@@ -4,6 +4,7 @@
   <title>Расположение секторов</title>
   <script src="http://code.jquery.com/jquery-1.9.1.js"></script>
   <script src="http://code.jquery.com/ui/1.10.4/jquery-ui.js"></script>
+  <script type="text/javascript" src="jquery.ui.touch-punch.min.js"></script>
  <style>
 
  body{background-color: #1faee9}
@@ -41,21 +42,15 @@ table{margin:0px;padding:0px;}
 		font-size:16px;
 		border:0px solid #fff;
   }
-  .rotate{
-  		-webkit-transform: rotate(90deg); 
-  		-moz-transform: rotate(90deg);
- 		-ms-transform: rotate(90deg);
-  		-o-transform: rotate(90deg);
- 		transform: rotate(90deg);
-  }
+
 
   .sector-add {
   		background-color: #fff;
-		width:100px;
+		width:0px;
 		height:100px;
-		border:1px solid #000;
+		border:0px solid #000;
 		float:left;
-		margin:5px;
+		margin:0px;
 		text-align:center;
 		font-size:14px;
 
@@ -65,6 +60,23 @@ table{margin:0px;padding:0px;}
 
   }
 
+  .mainCell {
+  		border-right:2px solid #fff;
+  		width:30px;
+  }
+  .mainCell div{
+	  	-webkit-transform: rotate(90deg); 
+  		-moz-transform: rotate(90deg);
+ 		-ms-transform: rotate(90deg);
+  		-o-transform: rotate(90deg);
+ 		transform: rotate(90deg);
+		width:50px;
+		margin-top:-25px;
+		font-weight:bold
+  }
+
+
+
   </style>
   <script>
   
@@ -72,80 +84,83 @@ table{margin:0px;padding:0px;}
  
 $(function() {
 	
-	var sectors = [];
+	var sectorGroupe=[];
+	sectorGroupe.push({order: 1,id: 1,name: 'Настройки'});
+	sectorGroupe.push({order: 2,id: 2,name: 'Кабинет'});
+	sectorGroupe.push({order: 3,id: 3,name: 'Архив'});
 
-	sectors.push({x:0,y:0,name:'настройки',value:"Системный сектор"});
-	sectors.push({x:0,y:200,name:'события',value:"Мой сектор №1"});
-	sectors.push({x:200,y:400,name:'документы',value:"Мой сектор №2"});
-	sectors.push({x:400,y:600,name:'мультимедиа',value:"Музыка"});
-	sectors.push({x:400,y:600,name:'мультимедиа',value:"Видео"});
+	var sectors = [];
+	sectors.push({order: 1,id:1,idg: 1,x:0,y:0,name:"Системный сектор"});
+	sectors.push({order: 1,id:2,idg: 2,x:0,y:200,name:'Сектор№1'});
+	sectors.push({order: 2,id:3,idg: 2,x:200,y:400,name:'Сектор№2'});
+	sectors.push({order: 3,id:4,idg: 2,x:400,y:600,name:'Сектор№3'});
+	sectors.push({order: 1,id:5,idg: 3,x:400,y:600,name:'Сектор№4'});
 	console.log(sectors);
-		
+
+	
+	for(var i=0; i<sectorGroupe.length; i++) {
+		$(".tabs").append("<div class='tab' idg='"+sectorGroupe[i].id+"'><table cellpadding='0'  cellspacing='0'><tr><td class='mainCell'><div>"+sectorGroupe[i].name+"</div></td><td><ul class='line' id='_"+sectorGroupe[i].id+"'><li class='sector-add'></li></ul></td></tr></table></div>");
+
+		 $(".line").sortable({
+      		connectWith: '.line' ,
+     		cursor: "move" ,
+      		opacity: 0.5,
+      		items: ".sector",
+     		cancel: ".sector-add ",
+     		placeholder: "sector-placeholder ",
+      		stop: function( event, ui) {
+      			var idg=ui.item.parent().attr('id');
+      			console.log(idg);
+      			var sorted = $("#"+idg).sortable("toArray");
+    			console.log(sorted);
+      		}
+    	});
+
+	}
+
+
 
 	for(var i=0; i<sectors.length; i++) {
-		$("#work li:last").before("<li class='sector'>"+sectors[i].value+"</li>");
+		$("#_"+sectors[i].idg).append("<li class='sector' id='"+sectors[i].id+"'>"+sectors[i].name+"</li>");
 	}
 	
 
-  
-  	$(".tabs").sortable({      stop: function( event, ui ) {
-      	console.log(ui.item.position());
-      }}).disableSelection();
-  
-    $( ".line" ).sortable({
-      items: "> li.sector",
-      cancel: ".sector-add ",
-      placeholder: "sector-placeholder ",
-      stop: function( event, ui ) {
-      	console.log(ui.item.position());
-      }
-    });
+    $( ".tabs" ).sortable().disableSelection();
+
 
     $( ".line" ).disableSelection();
 
-    $(".sector-add").click(function(){
-    	$("#work li:last").before("<li class='sector'>Новый сектор</li>");
+
+   
+
+
+
+   $(".tab").dblclick(function(e){
+    	
+   		var idg = $(this).attr('idg');
+   		var id  = 7;
+    	$("#_"+idg).append("<li class='sector' id='"+id+"'>Новый сектор</li>");
     });
+
+
+
 
  
 });
 </script>
 </head>
 <body>
+
+
+
+
+
 <div class='top' style='width:100%;border-bottom:2px solid #fff;'>
 	<h2 style='color:white'>Все сектора</h2>
 </div>
 <div class='tabs'>
-	<div class='tab'>
-		<table cellpadding="0"  cellspacing="0">
-			<tr>
-				<td style='border-right:2px solid #fff;width:30px'>
-				<div class='rotate'  style='width:50px;margin-top:-25px;font-weight:bold'>Настройки</div></td>
-				<td>
-					<ul class="line" id='system'>
-  						<li class="sector">
-    						Системный сектор
-  						</li>
-					</ul>
-				</td>
-			</tr>
-		</table>
- 	</div>
- 	<div class='tab' >
-		<table cellpadding="0"  cellspacing="0">
-			<tr>
-				<td style='border-right:2px solid #fff;width:30px'>
-					<div class='rotate' style='width:50px;margin-top:-25px;font-weight:bold' >Мультимедиа</div>
-				</td>
-				<td>
-					<ul class="line" id='work' >
-						<li class='sector-add'> + </li>
-					</ul>
 
-				</td>
-			</tr>
-		</table>
- 	</div>
+</div>
 <div class='bottom'></div>
  
 </body>
